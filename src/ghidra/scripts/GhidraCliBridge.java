@@ -16,6 +16,7 @@ import ghidra.program.model.pcode.HighFunction;
 import ghidra.program.model.pcode.HighSymbol;
 import ghidra.program.model.pcode.LocalSymbolMap;
 import ghidra.program.model.pcode.HighFunctionDBUtil;
+import ghidra.app.services.DataTypeManagerService;
 import ghidra.app.util.importer.AutoImporter;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.model.DomainFile;
@@ -2538,15 +2539,13 @@ public class GhidraCliBridge extends GhidraScript {
             if (func == null) return errorResult(buildFunctionTargetHint(target));
 
             // Parse the signature using Ghidra's C parser
-            ghidra.app.util.cparser.C.CParserUtils.CParseResults parseResults =
+            FunctionDefinitionDataType funcDef =
                 ghidra.app.util.cparser.C.CParserUtils.parseSignature(
-                    this, currentProgram, sigStr);
+                    (DataTypeManagerService) null, currentProgram, sigStr);
 
-            if (parseResults == null || parseResults.getDataType() == null) {
+            if (funcDef == null) {
                 return errorResult("Failed to parse signature: " + sigStr);
             }
-
-            FunctionDefinition funcDef = (FunctionDefinition) parseResults.getDataType();
 
             int txId = currentProgram.startTransaction("Set function signature");
             try {
