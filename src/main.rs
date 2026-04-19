@@ -1180,6 +1180,25 @@ async fn run_setup(cli: Cli) -> anyhow::Result<()> {
 
     std::fs::create_dir_all(&install_base)?;
 
+    // Check if Ghidra is already installed
+    if !args.force {
+        let config = Config::load()?;
+        if let Ok(install_dir) = config.get_ghidra_install_dir() {
+            if install_dir.exists() {
+                if let Ok(client) = GhidraClient::new(config) {
+                    if client.verify_installation().is_ok() {
+                        println!(
+                            "Ghidra is already installed at: {}",
+                            install_dir.display()
+                        );
+                        println!("Use --force to reinstall.");
+                        return Ok(());
+                    }
+                }
+            }
+        }
+    }
+
     // 3. Install Ghidra
     println!("\nInstalling to: {}", install_base.display());
     let final_path = ghidra::setup::install_ghidra(args.version, install_base).await?;

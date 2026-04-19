@@ -1169,7 +1169,7 @@ pub struct SetupArgs {
     #[arg(long, short = 'd')]
     pub dir: Option<String>,
 
-    /// Skip Java check
+    /// Force reinstall even if Ghidra is already installed (also skips Java check)
     #[arg(long)]
     pub force: bool,
 }
