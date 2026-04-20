@@ -1110,6 +1110,9 @@ pub struct ImportArgs {
     /// Return immediately, let bridge continue import in background
     #[arg(long, default_value = "false")]
     pub detach: bool,
+    /// Overwrite existing program if it already exists in the project
+    #[arg(long)]
+    pub overwrite: bool,
 }
 
 #[derive(Args, Clone, Serialize, Deserialize, Debug)]

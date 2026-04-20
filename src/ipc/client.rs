@@ -172,10 +172,11 @@ impl BridgeClient {
         &self,
         binary_path: &str,
         program: Option<&str>,
+        overwrite: bool,
     ) -> Result<serde_json::Value> {
         self.send_command(
             "import",
-            Some(json!({"binary_path": binary_path, "program": program})),
+            Some(json!({"binary_path": binary_path, "program": program, "overwrite": overwrite})),
         )
     }
 

@@ -18,7 +18,7 @@ use crate::ipc::client::BridgeClient;
 /// How to start the bridge - import a new binary or open an existing program.
 pub enum BridgeStartMode {
     /// Import a binary file into the project, then start bridge
-    Import { binary_path: String },
+    Import { binary_path: String, overwrite: bool },
     /// Open an existing program in the project
     Process { program_name: String },
     /// Open the project without loading a specific program
@@ -295,8 +295,11 @@ pub fn start_bridge(
 
     // Add mode-specific args
     match &mode {
-        BridgeStartMode::Import { binary_path } => {
+        BridgeStartMode::Import { binary_path, overwrite } => {
             cmd.arg("-import").arg(binary_path);
+            if *overwrite {
+                cmd.arg("-overwrite");
+            }
         }
         BridgeStartMode::Process { program_name } => {
             cmd.arg("-process").arg(program_name).arg("-noanalysis");
@@ -424,6 +427,13 @@ pub fn start_bridge(
 
         let (_, last_error, stdout_lines) = stdout_handle.join().unwrap_or_default();
         let stderr_output = stderr_handle.join().unwrap_or_default();
+
+        // Check for specific known errors and provide actionable messages
+        let has_conflict = stdout_lines.iter().any(|l| l.contains("conflicting program file"));
+        if has_conflict {
+            anyhow::bail!("Program already exists in project. Use --overwrite to replace it.");
+        }
+
         let detail = if !last_error.is_empty() {
             format!(": {}", last_error)
         } else if !stderr_output.is_empty() {

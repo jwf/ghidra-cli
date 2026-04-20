@@ -474,7 +474,7 @@ fn run_with_bridge(cli: Cli) -> anyhow::Result<()> {
                 // Bridge is running - import via TCP command
                 let client = BridgeClient::new(port);
                 verify_bridge(&client)?;
-                let result = client.import_binary(&args.binary, args.program.as_deref())?;
+                let result = client.import_binary(&args.binary, args.program.as_deref(), args.overwrite)?;
 
                 let program_name = args.program.clone().unwrap_or_else(|| {
                     result
@@ -505,6 +505,7 @@ fn run_with_bridge(cli: Cli) -> anyhow::Result<()> {
                     &ghidra_install_dir,
                     BridgeStartMode::Import {
                         binary_path: args.binary.clone(),
+                        overwrite: args.overwrite,
                     },
                 )?;
                 let client = BridgeClient::new(port);

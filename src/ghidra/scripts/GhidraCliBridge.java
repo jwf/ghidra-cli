@@ -1213,6 +1213,22 @@ public class GhidraCliBridge extends GhidraScript {
             return errorResult("Binary file not found: " + binaryPath);
         }
 
+        boolean overwrite = getArgBool(args, "overwrite", false);
+
+        // Check if program already exists
+        ProjectData projectData = project.getProjectData();
+        DomainFile existing = projectData.getRootFolder().getFile(programName);
+        if (existing != null) {
+            if (!overwrite) {
+                return errorResult("Program '" + programName + "' already exists in project. Use --overwrite to replace it.");
+            }
+            try {
+                existing.delete();
+            } catch (Exception e) {
+                return errorResult("Failed to delete existing program: " + e.getMessage());
+            }
+        }
+
         try {
             TaskMonitor mon = new ConsoleTaskMonitor();
             MessageLog log = new MessageLog();
